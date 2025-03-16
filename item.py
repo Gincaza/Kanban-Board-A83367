@@ -15,20 +15,38 @@ class Item(ft.Container):
         self.store: DataStore = store
         self.list = list
         self.item_text = item_text
+
+        self.edit_button = ft.IconButton(
+            icon=ft.Icons.EDIT, on_click=self.edit_item, icon_size=16
+        )
+        self.delete_button = ft.IconButton(
+            icon=ft.Icons.DELETE, on_click=self.delete_item, icon_size=16
+        )
+
         self.card_item = ft.Card(
             content=ft.Row(
                 [
                     ft.Container(
                         content=ft.Checkbox(label=f"{self.item_text}", width=200),
                         border_radius=ft.border_radius.all(5),
+                        expand=True
+                    ),
+                    ft.Row(
+                        [
+                            self.edit_button,
+                            self.delete_button
+                        ],
+                        alignment=ft.MainAxisAlignment.END,
+                        vertical_alignment=ft.CrossAxisAlignment.CENTER
                     )
                 ],
-                width=200,
-                wrap=True,
+                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                vertical_alignment=ft.CrossAxisAlignment.CENTER,
             ),
             elevation=1,
             data=self.list,
         )
+        
         self.view = ft.Draggable(
             group="items",
             content=ft.DragTarget(
@@ -77,3 +95,20 @@ class Item(ft.Container):
         self.list.set_indicator_opacity(self, 0.0)
         self.card_item.elevation = 1
         self.page.update()
+    
+    def edit_item(self, e):
+        self.card_item.content.controls[0].content = ft.TextField(
+            value=self.item_text,
+            on_submit=self.save_item,
+        )
+        self.page.update()
+    
+    def save_item(self, e):
+        self.item_text = e.control.value
+        self.card_item.content.controls[0].content = ft.Checkbox(
+            label=f"{self.item_text}", width=200
+        )
+        self.page.update()
+    
+    def delete_item(self, e):
+        self.list.remove_item(self)
