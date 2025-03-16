@@ -21,17 +21,17 @@ class TrelloApp(AppLayout):
             ft.PopupMenuItem(text="Settings"),
         ]
         self.appbar = ft.AppBar(
-            leading=ft.Icon(ft.Icons.GRID_GOLDENRATIO_ROUNDED),
+            leading=ft.Icon(ft.Icons.DEVELOPER_MODE),
             leading_width=100,
             title=ft.Text(
-                f"Trolli",
+                f"UniFleet",
                 font_family="Pacifico",
                 size=32,
                 text_align=ft.TextAlign.START,
             ),
             center_title=False,
             toolbar_height=75,
-            bgcolor=ft.Colors.LIGHT_BLUE_ACCENT_700,
+            bgcolor=ft.Colors.DEEP_PURPLE_50,
             actions=[
                 ft.Container(
                     content=ft.PopupMenuButton(items=self.appbar_items),
@@ -186,6 +186,4 @@ def main(page: ft.Page):
     app.initialize()
 
 
-print("flet version: ", ft.version.version)
-print("flet path: ", ft.__file__)
 ft.app(target=main, assets_dir="../assets")
