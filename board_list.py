@@ -153,7 +153,7 @@ class BoardList(ft.Container):
 
     def item_drag_accept(self, e):
         src = self.page.get_control(e.src_id)
-        self.add_item(src.data.item_text)
+        self.add_item(src.data.item_text, labels=src.data.labels)
         src.data.list.remove_item(src.data)
         self.end_indicator.opacity = 0.0
         self.update()
@@ -215,6 +215,7 @@ class BoardList(ft.Container):
         item: str | None = None,
         chosen_control: ft.Draggable | None = None,
         swap_control: ft.Draggable | None = None,
+        labels: str | None = None
     ):
 
         controls_list = [x.controls[1] for x in self.items.controls]
@@ -246,14 +247,14 @@ class BoardList(ft.Container):
 
         # insert (drag from other list to middle of this list)
         elif to_index is not None:
-            new_item = Item(self, self.store, item)
+            new_item = Item(self, self.store, item, labels=labels)
             control_to_add.controls.append(new_item)
             self.items.controls.insert(to_index, control_to_add)
 
         # add new (drag from other list to end of this list, or use add item button)
         else:
             new_item = (
-                Item(self, self.store, item)
+                Item(self, self.store, item, labels=labels)
                 if item
                 else Item(self, self.store, self.new_item_field.value)
             )
