@@ -20,6 +20,36 @@ class AppLayout(ft.Row):
         )
         self.sidebar = Sidebar(self, self.store)
         self.members_view = ft.Text("members view")
+
+        self.add_new_board_button = ft.TextButton(
+            "Add new board",
+            icon=ft.Icons.ADD,
+            icon_color={
+            ft.ControlState.DEFAULT: ft.Colors.WHITE,
+            ft.ControlState.HOVERED: ft.Colors.BLACK,
+            },
+            on_click=self.app.add_board,
+            style=ft.ButtonStyle(
+            bgcolor={
+                ft.ControlState.DEFAULT: ft.Colors.BLUE_200,
+                ft.ControlState.HOVERED: ft.Colors.BLUE_400,
+            },
+            shape={
+                ft.ControlState.DEFAULT: ft.RoundedRectangleBorder(
+                radius=3
+                )
+            },
+            color={
+                ft.ControlState.DEFAULT: ft.Colors.WHITE,
+                ft.ControlState.HOVERED: ft.Colors.BLACK,
+            },
+            icon_color={
+                ft.ControlState.DEFAULT: ft.Colors.WHITE,
+                ft.ControlState.HOVERED: ft.Colors.BLACK,
+            },
+            ),
+        )
+        
         self.all_boards_view = ft.Column(
             [
                 ft.Row(
@@ -33,22 +63,7 @@ class AppLayout(ft.Row):
                             padding=ft.padding.only(top=15),
                         ),
                         ft.Container(
-                            ft.TextButton(
-                                "Add new board",
-                                icon=ft.Icons.ADD,
-                                on_click=self.app.add_board,
-                                style=ft.ButtonStyle(
-                                    bgcolor={
-                                        ft.ControlState.DEFAULT: ft.Colors.BLUE_200,
-                                        ft.ControlState.HOVERED: ft.Colors.BLUE_400,
-                                    },
-                                    shape={
-                                        ft.ControlState.DEFAULT: ft.RoundedRectangleBorder(
-                                            radius=3
-                                        )
-                                    },
-                                ),
-                            ),
+                            self.add_new_board_button,
                             padding=ft.padding.only(right=50, top=15),
                         ),
                     ]
