@@ -113,13 +113,11 @@ class TrelloApp(AppLayout):
                 self.appbar.bgcolor = "#0d1b2a"
                 self.page.bgcolor = "#415a77"
                 dark_mode_toggle.label = "Light Mode"
-
             else:
                 self.page.theme_mode = ft.ThemeMode.LIGHT
                 self.appbar.bgcolor = "#778da9"
                 self.page.bgcolor = "#e0e1dd"
                 dark_mode_toggle.label = "Dark Mode"
-
             self.page.update()
 
         dark_mode_toggle = ft.Switch(
