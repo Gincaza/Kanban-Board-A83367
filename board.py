@@ -13,6 +13,7 @@ class Board(ft.Container):
         self.store: DataStore = store
         self.app = app
         self.name = name
+        self.selected_labels = []
         self.add_list_button = ft.FloatingActionButton(
             icon=ft.Icons.ADD, text="add a list", height=30, on_click=self.create_list
         )
@@ -181,7 +182,10 @@ class Board(ft.Container):
 
     def show_tags_popup(self, e):
         labels = self.get_all_labels()
-        checkboxes = [ft.Checkbox(label=label, on_change=self.filter_by_label) for label in labels]
+        checkboxes = [
+            ft.Checkbox(label=label, value=(label in self.selected_labels), on_change=self.filter_by_label)
+            for label in labels
+        ]
 
         dialog = ft.AlertDialog(
             title=ft.Text("Filter by Tags"),
@@ -197,10 +201,10 @@ class Board(ft.Container):
         return list(labels)
 
     def filter_by_label(self, e):
-        selected_labels = [checkbox.label for checkbox in e.control.parent.controls if checkbox.value]
+        self.selected_labels = [checkbox.label for checkbox in e.control.parent.controls if checkbox.value]
         for board_list in self.store.get_lists_by_board(self.board_id):
             for item in self.store.get_items(board_list.board_list_id):
                 item.view.visible = (
-                    True if not selected_labels else any(label in item.labels for label in selected_labels)
+                    True if not self.selected_labels else any(label in item.labels for label in self.selected_labels)
                 )
         self.page.update()
