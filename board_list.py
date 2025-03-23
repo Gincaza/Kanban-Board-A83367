@@ -32,6 +32,7 @@ class BoardList(ft.Container):
             height=50,
             bgcolor=ft.Colors.WHITE,
             on_submit=self.add_item_handler,
+            color=ft.Colors.BLACK
         )
 
         self.end_indicator = ft.Container(
