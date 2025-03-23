@@ -96,7 +96,6 @@ class Item(ft.Container):
                 [label_field, ft.ElevatedButton(text="Save", on_click=close_dlg)],
                 tight=True,
             ),
-            on_dismiss=lambda e: print("Label dialog dismissed!"),
         )
         self.page.open(dialog)
 

@@ -99,7 +99,6 @@ class TrelloApp(AppLayout):
                 ],
                 tight=True,
             ),
-            on_dismiss=lambda e: print("Modal dialog dismissed!"),
         )
         self.page.open(dialog)
 
@@ -137,7 +136,6 @@ class TrelloApp(AppLayout):
                 ],
                 tight=True,
             ),
-            on_dismiss=lambda _: print("Settings dialog dismissed!"),
         )
         self.page.open(dialog)
         
@@ -194,7 +192,6 @@ class TrelloApp(AppLayout):
                 ],
                 tight=True,
             ),
-            on_dismiss=lambda e: print("Modal dialog dismissed!"),
         )
         self.page.open(dialog)
         dialog.open = True
