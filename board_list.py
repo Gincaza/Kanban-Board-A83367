@@ -62,6 +62,7 @@ class BoardList(ft.Container):
                     text_align=ft.TextAlign.LEFT,
                     overflow=ft.TextOverflow.CLIP,
                     expand=True,
+                    color=ft.Colors.BLACK
                 ),
                 ft.Container(
                     ft.PopupMenuButton(
