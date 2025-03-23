@@ -20,18 +20,19 @@ class Board(ft.Container):
         self.filter_button = ft.TextButton(
             "Tags",
             icon=ft.Icons.LABEL,
+            icon_color=ft.Colors.BLUE,
             on_click=self.show_tags_popup,
             style=ft.ButtonStyle(
-                bgcolor={
-                            ft.ControlState.DEFAULT: ft.Colors.BLUE_200,
-                            ft.ControlState.HOVERED: ft.Colors.BLUE_400,
-                        },
-                shape={
-                            ft.ControlState.DEFAULT: ft.RoundedRectangleBorder
-                            (
-                                radius=3
-                            )
-                    },
+            bgcolor={
+                ft.ControlState.DEFAULT: ft.Colors.BLUE_200,
+                ft.ControlState.HOVERED: ft.Colors.BLUE_400,
+            },
+            shape={
+                ft.ControlState.DEFAULT: ft.RoundedRectangleBorder(radius=3)
+            },
+            color={
+                ft.ControlState.DEFAULT: ft.Colors.BLACK,
+            },
             ),
         )
 
