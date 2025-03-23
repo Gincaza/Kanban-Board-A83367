@@ -15,10 +15,11 @@ class TrelloApp(AppLayout):
         self.page.on_route_change = self.route_change
         self.boards = self.store.get_boards()
         self.login_profile_button = ft.PopupMenuItem(text="Log in", on_click=self.login)
+        self.settings = ft.PopupMenuItem(text="Settings", on_click=self.settings_popup)
         self.appbar_items = [
             self.login_profile_button,
             ft.PopupMenuItem(),  # divider
-            ft.PopupMenuItem(text="Settings"),
+            self.settings,
         ]
         self.appbar = ft.AppBar(
             leading=ft.Icon(ft.Icons.DEVELOPER_MODE),
@@ -31,7 +32,7 @@ class TrelloApp(AppLayout):
             ),
             center_title=False,
             toolbar_height=75,
-            bgcolor=ft.Colors.DEEP_PURPLE_50,
+            bgcolor="#778da9",
             actions=[
                 ft.Container(
                     content=ft.PopupMenuButton(items=self.appbar_items),
@@ -57,7 +58,7 @@ class TrelloApp(AppLayout):
                 "/",
                 [self.appbar, self],
                 padding=ft.padding.all(0),
-                bgcolor=ft.Colors.BLUE_GREY_200,
+                bgcolor=self.page.bgcolor,  # Usar a cor de fundo atual da página
             )
         )
         self.page.update()
@@ -98,9 +99,45 @@ class TrelloApp(AppLayout):
                 ],
                 tight=True,
             ),
-            on_dismiss=lambda e: print("Modal dialog dismissed!"),
         )
         self.page.open(dialog)
+
+    def settings_popup(self, _):
+        def close_dlg(_):
+            self.page.close(dialog)
+            self.page.update()
+
+        def toggle_dark_mode(_):
+            if self.page.theme_mode == ft.ThemeMode.LIGHT:
+                self.page.theme_mode = ft.ThemeMode.DARK
+                self.appbar.bgcolor = "#0d1b2a"
+                self.page.bgcolor = "#415a77"
+                dark_mode_toggle.label = "Light Mode"
+            else:
+                self.page.theme_mode = ft.ThemeMode.LIGHT
+                self.appbar.bgcolor = "#778da9"
+                self.page.bgcolor = "#e0e1dd"
+                dark_mode_toggle.label = "Dark Mode"
+            self.page.update()
+
+        dark_mode_toggle = ft.Switch(
+            label="Light Mode" if self.page.theme_mode == ft.ThemeMode.DARK else "Dark Mode",
+            on_change=toggle_dark_mode,
+            value=self.page.theme_mode == ft.ThemeMode.DARK
+        )
+
+        dialog = ft.AlertDialog(
+            title=ft.Text("Settings"),
+            content=ft.Column(
+                [
+                    dark_mode_toggle,
+                    ft.ElevatedButton(text="Close", on_click=close_dlg),
+                ],
+                tight=True,
+            ),
+        )
+        self.page.open(dialog)
+        
 
     def route_change(self, e):
         troute = ft.TemplateRoute(self.page.route)
@@ -137,7 +174,7 @@ class TrelloApp(AppLayout):
             label="New Board Name", on_submit=close_dlg, on_change=textfield_change
         )
         create_button = ft.ElevatedButton(
-            text="Create", bgcolor=ft.Colors.BLUE_200, on_click=close_dlg, disabled=True
+            text="Create", bgcolor=ft.Colors.BLUE_200, on_click=close_dlg, disabled=True, color=ft.Colors.BLACK
         )
         dialog = ft.AlertDialog(
             title=ft.Text("Name your new board"),
@@ -154,7 +191,6 @@ class TrelloApp(AppLayout):
                 ],
                 tight=True,
             ),
-            on_dismiss=lambda e: print("Modal dialog dismissed!"),
         )
         self.page.open(dialog)
         dialog.open = True
@@ -179,7 +215,6 @@ def main(page: ft.Page):
     page.theme_mode = ft.ThemeMode.LIGHT
     page.theme.page_transitions.windows = "cupertino"
     page.fonts = {"Pacifico": "Pacifico-Regular.ttf"}
-    page.bgcolor = ft.Colors.BLUE_GREY_200
     app = TrelloApp(page, InMemoryStore())
     page.add(app)
     page.update()

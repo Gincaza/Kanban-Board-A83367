@@ -16,6 +16,25 @@ class Board(ft.Container):
         self.add_list_button = ft.FloatingActionButton(
             icon=ft.Icons.ADD, text="add a list", height=30, on_click=self.create_list
         )
+        
+        self.filter_button = ft.TextButton(
+            "Tags",
+            icon=ft.Icons.LABEL,
+            icon_color=ft.Colors.BLUE,
+            on_click=self.show_tags_popup,
+            style=ft.ButtonStyle(
+            bgcolor={
+                ft.ControlState.DEFAULT: ft.Colors.BLUE_200,
+                ft.ControlState.HOVERED: ft.Colors.BLUE_400,
+            },
+            shape={
+                ft.ControlState.DEFAULT: ft.RoundedRectangleBorder(radius=3)
+            },
+            color={
+                ft.ControlState.DEFAULT: ft.Colors.BLACK,
+            },
+            ),
+        )
 
         self.board_lists = ft.Row(
             controls=[self.add_list_button],
@@ -29,7 +48,19 @@ class Board(ft.Container):
             self.add_list(l)
 
         super().__init__(
-            content=self.board_lists,
+            content=ft.Column(
+                [
+                    ft.Row(
+                        [
+                            ft.Text(value=self.name, style=ft.TextTheme.headline_medium),
+                            self.filter_button,
+                        ],
+                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN
+                    ),
+                    self.board_lists,
+                ],
+                spacing=10,
+            ),
             data=self,
             margin=ft.margin.all(0),
             padding=ft.padding.only(top=10, right=0),
@@ -124,7 +155,6 @@ class Board(ft.Container):
                 tight=True,
                 alignment=ft.MainAxisAlignment.CENTER,
             ),
-            on_dismiss=lambda e: print("Modal dialog dismissed!"),
         )
         self.page.open(dialog)
         dialog_text.focus()
@@ -149,3 +179,29 @@ class Board(ft.Container):
             alignment=ft.alignment.center,
             data=color,
         )
+
+    def show_tags_popup(self, e):
+        labels = self.get_all_labels()
+        checkboxes = [ft.Checkbox(label=label, on_change=self.filter_by_label) for label in labels]
+
+        dialog = ft.AlertDialog(
+            title=ft.Text("Filter by Tags"),
+            content=ft.Column(checkboxes, tight=True),
+        )
+        self.page.open(dialog)
+
+    def get_all_labels(self):
+        labels = set()
+        for board_list in self.store.get_lists_by_board(self.board_id):
+            for item in self.store.get_items(board_list.board_list_id):
+                labels.update(item.labels)
+        return list(labels)
+
+    def filter_by_label(self, e):
+        selected_labels = [checkbox.label for checkbox in e.control.parent.controls if checkbox.value]
+        for board_list in self.store.get_lists_by_board(self.board_id):
+            for item in self.store.get_items(board_list.board_list_id):
+                item.view.visible = (
+                    True if not selected_labels else any(label in item.labels for label in selected_labels)
+                )
+        self.page.update()
