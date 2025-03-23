@@ -124,7 +124,8 @@ class TrelloApp(AppLayout):
 
         dark_mode_toggle = ft.Switch(
             label="Light Mode" if self.page.theme_mode == ft.ThemeMode.DARK else "Dark Mode",
-            on_change=toggle_dark_mode
+            on_change=toggle_dark_mode,
+            value=self.page.theme_mode == ft.ThemeMode.DARK
         )
 
         dialog = ft.AlertDialog(
