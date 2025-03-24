@@ -53,19 +53,7 @@ class TrelloApp(AppLayout):
         )
 
     def initialize(self):
-        self.page.views.append(
-            ft.View(
-                "/",
-                [self.appbar, self],
-                padding=ft.padding.all(0),
-                bgcolor=self.page.bgcolor,  # Usar a cor de fundo atual da página
-            )
-        )
-        self.page.update()
-        # create an initial board for demonstration if no boards
-        if len(self.boards) == 0:
-            self.create_new_board("My First Board")
-        self.page.go("/")
+        self.login(None)
 
     def login(self, e):
         def close_dlg(e):
@@ -86,6 +74,7 @@ class TrelloApp(AppLayout):
                 text=f"{self.page.client_storage.get('current_user')}'s Profile"
             )
             self.page.update()
+            self.load_main_view()
 
         user_name = ft.TextField(label="User name")
         password = ft.TextField(label="Password", password=True)
@@ -99,8 +88,24 @@ class TrelloApp(AppLayout):
                 ],
                 tight=True,
             ),
+            modal=True,
         )
         self.page.open(dialog)
+
+    def load_main_view(self):
+        self.page.views.append(
+            ft.View(
+                "/",
+                [self.appbar, self],
+                padding=ft.padding.all(0),
+                bgcolor=self.page.bgcolor,
+            )
+        )
+        self.page.update()
+        # create an initial board for demonstration if no boards
+        if len(self.boards) == 0:
+            self.create_new_board("My First Board")
+        self.page.go("/")
 
     def settings_popup(self, _):
         def close_dlg(_):
