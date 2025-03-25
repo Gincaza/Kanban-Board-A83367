@@ -53,21 +53,57 @@ class TrelloApp(AppLayout):
         )
 
     def initialize(self):
-        self.page.views.append(
-            ft.View(
-                "/",
-                [self.appbar, self],
-                padding=ft.padding.all(0),
-                bgcolor=self.page.bgcolor,  # Usar a cor de fundo atual da página
-            )
-        )
-        self.page.update()
-        # create an initial board for demonstration if no boards
-        if len(self.boards) == 0:
-            self.create_new_board("My First Board")
-        self.page.go("/")
+        self.login(None)
 
     def login(self, e):
+        def close_dlg(e):
+            # Verificar se o usuário e a senha existem e correspondem
+            stored_users = self.page.client_storage.get("users") or {}
+
+            if user_name.value not in stored_users or stored_users[user_name.value] != password.value:
+                password.error_text = "A senha ou usuário estão incorretos"
+                user_name.border_color = ft.Colors.RED
+                password.border_color = ft.Colors.RED
+                self.page.update()
+                return
+            else:
+                # Login bem-sucedido
+                self.user = user_name.value
+                self.page.client_storage.set("current_user", user_name.value)
+
+                self.page.close(dialog)
+                self.appbar_items[0] = ft.PopupMenuItem(
+                    text=f"{self.page.client_storage.get('current_user')}'s Profile"
+                )
+                self.page.update()
+                self.load_main_view()
+
+        def open_register(e):
+            self.page.close(dialog)
+            self.register(None)
+
+        user_name = ft.TextField(label="User name")
+        password = ft.TextField(label="Password", password=True)
+        login_button = ft.ElevatedButton(text="Login", on_click=close_dlg)
+        register_button = ft.TextButton(text="Registrar-se", on_click=open_register)
+        dialog = ft.AlertDialog(
+            title=ft.Text("Please enter your login credentials"),
+            content=ft.Column(
+                [
+                    user_name,
+                    password,
+                    ft.Row(
+                        [login_button, register_button],
+                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                    ),
+                ],
+                tight=True,
+            ),
+            modal=True,
+        )
+        self.page.open(dialog)
+
+    def register(self, e):
         def close_dlg(e):
             if user_name.value == "" or password.value == "":
                 user_name.error_text = "Please provide username"
@@ -75,32 +111,64 @@ class TrelloApp(AppLayout):
                 self.page.update()
                 return
             else:
-                user = User(user_name.value, password.value)
-                if user not in self.store.get_users():
-                    self.store.add_user(user)
+                # Armazenar o usuário e a senha localmente
+                stored_users = self.page.client_storage.get("users") or {}
+                if user_name.value in stored_users:
+                    user_name.error_text = "User already exists"
+                    self.page.update()
+                    return
+                stored_users[user_name.value] = password.value
+                self.page.client_storage.set("users", stored_users)
+
                 self.user = user_name.value
                 self.page.client_storage.set("current_user", user_name.value)
 
+                self.page.close(dialog)
+                self.appbar_items[0] = ft.PopupMenuItem(
+                    text=f"{self.page.client_storage.get('current_user')}'s Profile"
+                )
+                self.page.update()
+                self.load_main_view()
+
+        def open_login(e):
             self.page.close(dialog)
-            self.appbar_items[0] = ft.PopupMenuItem(
-                text=f"{self.page.client_storage.get('current_user')}'s Profile"
-            )
-            self.page.update()
+            self.login(None)
 
         user_name = ft.TextField(label="User name")
         password = ft.TextField(label="Password", password=True)
+        register_button = ft.ElevatedButton(text="Register", on_click=close_dlg)
+        login_button = ft.TextButton(text="Login", on_click=open_login)
         dialog = ft.AlertDialog(
-            title=ft.Text("Please enter your login credentials"),
+            title=ft.Text("Register a new account"),
             content=ft.Column(
                 [
                     user_name,
                     password,
-                    ft.ElevatedButton(text="Login", on_click=close_dlg),
+                    ft.Row(
+                        [register_button, login_button],
+                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                    ),
                 ],
                 tight=True,
             ),
+            modal=True,
         )
         self.page.open(dialog)
+
+    def load_main_view(self):
+        self.page.views.append(
+            ft.View(
+                "/",
+                [self.appbar, self],
+                padding=ft.padding.all(0),
+                bgcolor=self.page.bgcolor,
+            )
+        )
+        self.page.update()
+        # create an initial board for demonstration if no boards
+        if len(self.boards) == 0:
+            self.create_new_board("My First Board")
+        self.page.go("/")
 
     def settings_popup(self, _):
         def close_dlg(_):
