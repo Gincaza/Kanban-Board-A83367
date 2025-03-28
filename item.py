@@ -144,10 +144,31 @@ class Item(ft.Container):
         self.page.update()
     
     def save_item(self, e):
+        # Atualizar o texto do item
         self.item_text = e.control.value
         self.card_item.content.controls[0].controls[0].content = ft.Checkbox(
             label=f"{self.item_text}", width=200
         )
+
+        # Atualizar o client_storage
+        stored_users, current_user_data = self.list.board.app.get_current_user_data()
+        if current_user_data:
+            boards = current_user_data.get("boards") or {}
+            board_data = boards.get(str(self.list.board.board_id)) or {}
+            lists = board_data.get("lists") or {}
+            list_data = lists.get(str(self.list.board_list_id)) or {}
+            items = list_data.get("items", {})
+            if str(self.item_id) in items:
+                items[str(self.item_id)]["text"] = self.item_text  # Atualizar o texto do item
+            list_data["items"] = items
+            lists[str(self.list.board_list_id)] = list_data
+            board_data["lists"] = lists
+            boards[str(self.list.board.board_id)] = board_data
+            current_user_data["boards"] = boards
+            stored_users[self.page.client_storage.get("current_user")] = current_user_data
+            self.page.client_storage.set("users", stored_users)
+
+        # Atualizar a interface
         self.page.update()
     
     def delete_item(self, e):
