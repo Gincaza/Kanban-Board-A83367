@@ -2,8 +2,8 @@ import flet as ft
 from app_layout import AppLayout
 from board import Board
 from user import User
-from item import Item  # Assuming Item is defined in item.py
-from board_list import BoardList  # Assuming BoardList is defined in board_list.py
+from item import Item
+from board_list import BoardList
 from data_store import DataStore
 from memory_store import InMemoryStore
 from user import User
@@ -63,8 +63,8 @@ class TrelloApp(AppLayout):
             # Verificar se o usuário e a senha existem e correspondem
             stored_users = self.page.client_storage.get("users") or {}
 
-            if user_name.value not in stored_users or stored_users[user_name.value] != password.value:
-                password.error_text = "A senha ou usuário estão incorretos"
+            if user_name.value not in stored_users or stored_users[user_name.value].get("password") != password.value:
+                password.error_text = "Incorrect username or password"
                 user_name.border_color = ft.Colors.RED
                 password.border_color = ft.Colors.RED
                 self.page.update()
@@ -88,7 +88,7 @@ class TrelloApp(AppLayout):
         user_name = ft.TextField(label="User name")
         password = ft.TextField(label="Password", password=True)
         login_button = ft.ElevatedButton(text="Login", on_click=close_dlg)
-        register_button = ft.TextButton(text="Registrar-se", on_click=open_register)
+        register_button = ft.TextButton(text="Register", on_click=open_register)
         dialog = ft.AlertDialog(
             title=ft.Text("Please enter your login credentials"),
             content=ft.Column(
@@ -120,7 +120,12 @@ class TrelloApp(AppLayout):
                     user_name.error_text = "User already exists"
                     self.page.update()
                     return
-                stored_users[user_name.value] = password.value
+
+                # Criar a estrutura completa para o usuário
+                stored_users[user_name.value] = {
+                    "password": password.value,
+                    "boards": {}
+                }
                 self.page.client_storage.set("users", stored_users)
 
                 self.user = user_name.value
