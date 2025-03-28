@@ -212,58 +212,31 @@ class BoardList(ft.Container):
             return
         self.add_item()
 
-    def add_item(
-        self,
-        item: str | None = None,
-        chosen_control: ft.Draggable | None = None,
-        swap_control: ft.Draggable | None = None,
-        labels: str | None = None
-    ):
+    def add_item(self, item: str | None = None, labels: str | None = None):
+        item = item or self.new_item_field.value
+        new_item = Item(self, self.store, item, labels=labels)
+        self.items.controls.append(new_item)
+        self.store.add_item(self.board_list_id, new_item)
 
-        controls_list = [x.controls[1] for x in self.items.controls]
-        to_index = (
-            controls_list.index(swap_control) if swap_control in controls_list else None
-        )
-        from_index = (
-            controls_list.index(chosen_control)
-            if chosen_control in controls_list
-            else None
-        )
-        control_to_add = ft.Column(
-            [
-                ft.Container(
-                    bgcolor=ft.Colors.BLACK26,
-                    border_radius=ft.border_radius.all(30),
-                    height=3,
-                    alignment=ft.alignment.center_right,
-                    width=200,
-                    opacity=0.0,
-                )
-            ]
-        )
-
-        # rearrange (i.e. drag drop from same list)
-        if (from_index is not None) and (to_index is not None):
-            self.items.controls.insert(to_index, self.items.controls.pop(from_index))
-            self.set_indicator_opacity(swap_control, 0.0)
-
-        # insert (drag from other list to middle of this list)
-        elif to_index is not None:
-            new_item = Item(self, self.store, item, labels=labels)
-            control_to_add.controls.append(new_item)
-            self.items.controls.insert(to_index, control_to_add)
-
-        # add new (drag from other list to end of this list, or use add item button)
-        else:
-            new_item = (
-                Item(self, self.store, item, labels=labels)
-                if item
-                else Item(self, self.store, self.new_item_field.value)
-            )
-            control_to_add.controls.append(new_item)
-            self.items.controls.append(control_to_add)
-            self.store.add_item(self.board_list_id, new_item)
-            self.new_item_field.value = ""
+        # Armazenar o item no client_storage do usuário logado
+        stored_users, current_user_data = self.board.app.get_current_user_data()
+        if current_user_data:
+            boards = current_user_data.get("boards") or {}
+            board_data = boards.get(str(self.board.board_id)) or {}
+            lists = board_data.get("lists") or {}
+            list_data = lists.get(str(self.board_list_id)) or {}
+            items = list_data.get("items", {})
+            items[str(new_item.item_id)] = {
+                "text": new_item.item_text,
+                "labels": new_item.labels
+            }
+            list_data["items"] = items
+            lists[str(self.board_list_id)] = list_data
+            board_data["lists"] = lists
+            boards[str(self.board.board_id)] = board_data
+            current_user_data["boards"] = boards
+            stored_users[self.page.client_storage.get("current_user")] = current_user_data
+            self.page.client_storage.set("users", stored_users)
 
         self.page.update()
 
