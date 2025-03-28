@@ -2,9 +2,12 @@ import flet as ft
 from app_layout import AppLayout
 from board import Board
 from user import User
+from item import Item  # Assuming Item is defined in item.py
+from board_list import BoardList  # Assuming BoardList is defined in board_list.py
 from data_store import DataStore
 from memory_store import InMemoryStore
 from user import User
+import json
 
 
 class TrelloApp(AppLayout):
@@ -273,6 +276,27 @@ class TrelloApp(AppLayout):
     def delete_board(self, e):
         self.store.remove_board(e.control.data)
         self.set_all_boards_view()
+    
+    def get_current_user_data(self):
+        stored_users = self.page.client_storage.get("users") or {}
+
+        current_user = self.page.client_storage.get("current_user")
+        if current_user:
+            if current_user not in stored_users:
+                # Se o usuário não existir, criar a estrutura básica
+                stored_users[current_user] = {
+                    "password": "",
+                    "boards": {}
+                }
+                self.page.client_storage.set("users", stored_users)
+            elif "boards" not in stored_users[current_user]:
+                # Se a estrutura de boards estiver ausente, adicioná-la
+                stored_users[current_user]["boards"] = {}
+                self.page.client_storage.set("users", stored_users)
+
+            return stored_users, stored_users[current_user]
+
+        return stored_users, None
 
 
 def main(page: ft.Page):
