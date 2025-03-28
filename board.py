@@ -165,9 +165,26 @@ class Board(ft.Container):
         self.store.remove_list(self.board_id, list.board_list_id)
         self.page.update()
 
-    def add_list(self, list):
-        self.board_lists.controls.insert(-1, list)
-        self.store.add_list(self.board_id, list)
+    def add_list(self, board_list):
+        self.board_lists.controls.insert(-1, board_list)
+        self.store.add_list(self.board_id, board_list)
+
+        # Armazenar a lista no client_storage do usuário logado
+        stored_users, current_user_data = self.app.get_current_user_data()
+        if current_user_data:
+            boards = current_user_data.get("boards") or {}
+            board_data = boards.get(str(self.board_id)) or {}
+            lists = board_data.get("lists") or {}
+            lists[str(board_list.board_list_id)] = {
+                "name": board_list.title,
+                "items": {}
+            }
+            board_data["lists"] = lists
+            boards[str(self.board_id)] = board_data
+            current_user_data["boards"] = boards
+            stored_users[self.page.client_storage.get("current_user")] = current_user_data
+            self.page.client_storage.set("users", stored_users)
+
         self.page.update()
 
     def color_option_creator(self, color: str):
